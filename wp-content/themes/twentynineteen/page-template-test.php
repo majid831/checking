@@ -5,7 +5,6 @@
 get_header();
 ?>
 <h2>in development branch</h2>
-<h4>checking to revert my code so i can test it</h4>
 	<section id="primary" class="content-area">
 		<main id="main" class="site-main">
             <div>
