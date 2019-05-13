@@ -494,6 +494,75 @@ if (class_exists('MultiPostThumbnails')) {
             'post_type' => 'page'
         )
     );
+    function gender_get_meta( $value ) {
+        global $post;
 
+        $field = get_post_meta( $post->ID, $value, true );
+        if ( ! empty( $field ) ) {
+            return is_array( $field ) ? stripslashes_deep( $field ) : stripslashes( wp_kses_decode_entities( $field ) );
+        } else {
+            return false;
+        }
+    }
+
+    function gender_add_meta_box() {
+        add_meta_box(
+            'gender-gender',
+            __( 'Gender', 'gender' ),
+            'gender_html',
+            'post',
+            'normal',
+            'default'
+        );
+        add_meta_box(
+            'gender-gender',
+            __( 'Gender', 'gender' ),
+            'gender_html',
+            'wp_job',
+            'normal',
+            'default'
+        );
+    }
+    add_action( 'add_meta_boxes', 'gender_add_meta_box' );
+
+    function gender_html( $post) {
+        wp_nonce_field( '_gender_nonce', 'gender_nonce' ); ?>
+
+        <p>
+        <label for="gender_select_gender"><?php _e( 'Select Gender', 'gender' ); ?></label><br>
+        <select name="gender_select_gender" id="gender_select_gender">
+            <option <?php echo (gender_get_meta( 'gender_select_gender' ) === 'M' ) ? 'selected' : '' ?>>M</option>
+            <option <?php echo (gender_get_meta( 'gender_select_gender' ) === 'F' ) ? 'selected' : '' ?>>F</option>
+        </select>
+        </p><?php
+    }
+
+    function gender_save( $post_id ) {
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+        if ( ! isset( $_POST['gender_nonce'] ) || ! wp_verify_nonce( $_POST['gender_nonce'], '_gender_nonce' ) ) return;
+        if ( ! current_user_can( 'edit_post', $post_id ) ) return;
+
+        if ( isset( $_POST['gender_select_gender'] ) )
+            update_post_meta( $post_id, 'gender_select_gender', esc_attr( $_POST['gender_select_gender'] ) );
+    }
+    add_action( 'save_post', 'gender_save' );
+//    add_action( 'add_meta_boxes', 'cd_meta_box_add' );
+//    function cd_meta_box_add()
+//    {
+//        add_meta_box( 'my-meta-box-id', 'My First Meta Box', 'cd_meta_box_cb', 'null', 'normal', 'high' );
+//    }
+//    function cd_meta_box_cb( $post )
+//    {
+//        $values = get_post_custom( $post->ID );
+//        $text = isset( $values['my_meta_box_text'] ) ? esc_attr( $values['my_meta_box_text'][0] ) : '';
+//        $selected = isset( $values['my_meta_box_select'] ) ? esc_attr( $values['my_meta_box_select'][0] ) : '';
+//        $check = isset( $values['my_meta_box_check'] ) ? esc_attr( $values['my_meta_box_check'][0] ) : '';
+//        ?>
+<!--        <p>-->
+<!--            <label for="my_meta_box_text">Text Label</label>-->
+<!--            <input type="text" name="my_meta_box_text" id="my_meta_box_text" value="--><?php //echo $text; ?><!--" />-->
+<!--        </p>-->
+<!--        --><?php
+//    }
 };
 
